@@ -1,29 +1,33 @@
 pipeline{
     agent any
     stages {
-        stage("Chekout"){
-            steps {
-                echo "Checking out the code...."
-            }
-        }   
         stage("Compile"){
             steps {
+                echo "Compiling the code...."
+                sh "mvn clean compile"
+            }
+        }   
+        stage("Test"){
+            steps {
                 echo "Compiling the code.... "
+                sh "mvn test"
             }
         }  
-        stage("Scan"){
+        stage("Unit Test"){
             steps {
-                echo "Scanning the code "
+                echo "Running the unit tests.... "
             }
         }  
         stage("Build"){
             steps {
-                echo "Building the image...... "
+                echo "Building the image.... "
+                sh "mvn clean package"
             }
-        }  
-        stage("Push"){
-            steps {
-                sh 'echo "Pushing the image by .... $(whoami)"'
+            post{
+                success{
+                    echo "Build Successful, archiving the artifacts....."
+                    archiveArtifacts artifacts: '**/*.war', followSymlinks: false
+                }
             }
         }  
     }
