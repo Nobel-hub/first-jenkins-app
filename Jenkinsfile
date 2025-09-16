@@ -29,6 +29,12 @@ pipeline{
                     archiveArtifacts artifacts: '**/*.war', followSymlinks: false
                 }
             }
+        }
+        stage("Create Docker image"){
+            steps {
+                echo "Creating the Docker image for the app..."
+                sh 'docker image build -t myapp.local/javaapp:"${BUILD_NUMBER}" .'
+            }
         }  
     }
 }
