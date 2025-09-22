@@ -1,5 +1,8 @@
 pipeline{
     agent any
+    environment{
+        CONTAINER_REGISTRY_AND_REPOSITORY="myapp.local/javaapp"
+    }
     stages {
         stage("Compile"){
             steps {
@@ -33,12 +36,13 @@ pipeline{
         stage("Create Docker image"){
             steps {
                 echo "Creating the Docker image for the app..."
-                sh 'docker image build -t myapp.local/javaapp:"${BUILD_NUMBER}" .'
+                sh "docker image build -t ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER} ."
             }
         }  
         stage("Scanning the image"){
             steps {
                 echo "Scanning the available docker image...."
+                sh "trivy image ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER} --format json -o report.json"
             }
         }
         stage("Push the image"){
