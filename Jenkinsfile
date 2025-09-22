@@ -42,12 +42,15 @@ pipeline{
         stage("Scanning the image"){
             steps {
                 echo "Scanning the available docker image...."
-                sh "trivy image ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER} --format json -o report.json"
+                sh "trivy image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER} --format json -o report.json --exit-code 1"
             }
         }
         stage("Push the image"){
             steps {
                 echo "Pushing the docker image to Dockerhub....."
+                withDockerRegistry([credentialsID: 'docregcred' , url: '']){
+                    sh "docker image push ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER}"
+                }
             }
         }   
     }
