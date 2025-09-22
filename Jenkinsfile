@@ -36,5 +36,15 @@ pipeline{
                 sh 'docker image build -t myapp.local/javaapp:"${BUILD_NUMBER}" .'
             }
         }  
+        stage("Scanning the image"){
+            steps {
+                echo "Scanning the available docker image...."
+            }
+        }
+        stage("Push the image"){
+            steps {
+                echo "Pushing the docker image to Dockerhub....."
+            }
+        }   
     }
 }
