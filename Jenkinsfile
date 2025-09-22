@@ -48,7 +48,7 @@ pipeline{
         stage("Push the image"){
             steps {
                 echo "Pushing the docker image to Dockerhub....."
-                withDockerRegistry([credentialsID: 'docregcred' , url: '']){
+                withDockerRegistry([credentialsId: 'docregcred' , url: '']){
                     sh "docker image push ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER}"
                 }
             }
