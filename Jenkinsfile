@@ -10,15 +10,10 @@ pipeline{
                 sh "mvn clean compile"
             }
         }   
-        stage("Test"){
-            steps {
-                echo "Compiling the code.... "
-                sh "mvn test"
-            }
-        }  
         stage("Unit Test"){
             steps {
                 echo "Running the unit tests.... "
+                sh "mvn test"
             }
         }  
         stage("Build"){
@@ -52,6 +47,20 @@ pipeline{
                     sh "docker image push ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER}"
                 }
             }
-        }   
+        }
+        stage("Deploy an app to Dev environment"){
+            steps{
+                echo "Running the image and opening the application in dev environment...."
+                sh "docker rm -f myapp-dev || true"
+                sh "docker container run -d --name myapp-dev -p 8086:8080 ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER}"
+            }
+        } 
+        stage("Deploy an app to Prod environment"){
+            steps{
+                echo "Running the image and opening the application in prod environment...."
+                sh "docker rm -f myapp-prod || true"
+                sh "docker container run -d --name myapp-prod -p 8087:8080 ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER}"
+            }
+        } 
     }
 }
