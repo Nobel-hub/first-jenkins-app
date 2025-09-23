@@ -65,17 +65,13 @@ pipeline {
         stage("Deploy an app to Prod environment") {
             steps {
                 script {
-                    def approved = timeout(time: 1, unit: 'DAYS') {
+                    timeout(time: 1, unit: 'DAYS') {
                         input message: "Are you sure you want to deploy it to production instance?"
                     }
 
-                    if (approved) {
-                        echo "Running the image and opening the application in prod environment...."
-                        sh "docker rm -f myapp-prod || true"
-                        sh "docker container run -d --name myapp-prod -p 8087:8080 ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER}"
-                    } else {
-                        echo "Prod deployment skipped."
-                    }
+                    echo "Running the image and opening the application in prod environment...."
+                    sh "docker rm -f myapp-prod || true"
+                    sh "docker container run -d --name myapp-prod -p 8087:8080 ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER}"
                 }
             }
         }
