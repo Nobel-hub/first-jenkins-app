@@ -32,6 +32,9 @@ pipeline {
         }
 
         stage("Create Docker image") {
+            agent{
+                label 'node-for-mavenapp'
+            }
             steps {
                 echo "Creating the Docker image for the app..."
                 sh "docker image build -t ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER} ."
@@ -39,6 +42,9 @@ pipeline {
         }  
 
         stage("Scanning the image") {
+            agent{
+                label 'node-for-mavenapp'
+            }
             steps {
                 echo "Scanning the available docker image...."
                 sh "trivy image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER} --format json -o report.json --exit-code 1"
@@ -46,6 +52,9 @@ pipeline {
         }
 
         stage("Push the image") {
+             agent{
+                label 'node-for-mavenapp'
+            }
             steps {
                 echo "Pushing the docker image to Dockerhub....."
                 withDockerRegistry([credentialsId: 'docregcred', url: '']) {
