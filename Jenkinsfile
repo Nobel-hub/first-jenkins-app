@@ -19,6 +19,9 @@ pipeline {
         }  
 
         stage("Build") {
+            agent{
+                label 'node-for-mavenapp'
+            }
             steps {
                 echo "Building the image...."
                 sh "mvn clean package"
