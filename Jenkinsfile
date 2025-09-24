@@ -3,23 +3,24 @@ pipeline {
     environment {
         CONTAINER_REGISTRY_AND_REPOSITORY = "nobeldhakal/javaapp"
     }
+
     stages {
         stage("Compile") {
             steps {
                 echo "Compiling the code...."
                 sh "mvn clean compile"
             }
-        }   
+        }
 
         stage("Unit Test") {
             steps {
                 echo "Running the unit tests...."
                 sh "mvn test"
             }
-        }  
+        }
 
         stage("Build") {
-            agent{
+            agent {
                 label 'node-for-mavenapp'
             }
             steps {
@@ -35,17 +36,17 @@ pipeline {
         }
 
         stage("Create Docker image") {
-            agent{
+            agent {
                 label 'node-for-mavenapp'
             }
             steps {
                 echo "Creating the Docker image for the app..."
                 sh "docker image build -t ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER} ."
             }
-        }  
+        }
 
         stage("Scanning the image") {
-            agent{
+            agent {
                 label 'node-for-mavenapp'
             }
             steps {
@@ -55,7 +56,7 @@ pipeline {
         }
 
         stage("Push the image") {
-             agent{
+            agent {
                 label 'node-for-mavenapp'
             }
             steps {
@@ -72,7 +73,7 @@ pipeline {
                 sh "docker rm -f myapp-dev || true"
                 sh "docker container run -d --name myapp-dev -p 8086:8080 ${env.CONTAINER_REGISTRY_AND_REPOSITORY}:${env.BUILD_NUMBER}"
             }
-        } 
+        }
 
         stage("Deploy an app to Prod environment") {
             steps {
@@ -88,9 +89,48 @@ pipeline {
             }
         }
     }
-    post{
-        always{
-            echo "I will say hello again."
+
+    post {
+        always {
+            mail to: 'nobeldhakal01@gmail.com',
+                 subject: "Job '${JOB_NAME}' (${BUILD_NUMBER}) is waiting for input",
+                 body: "Please go to ${BUILD_URL} and verify the build"
+        }
+        success {
+            mail bcc: '',
+                 body: """Hi Team,
+
+Build #${BUILD_NUMBER} is successful, please go through the url
+
+${BUILD_URL}
+
+and verify the details.
+
+Regards,
+DevOps Team""",
+                 cc: '',
+                 from: '',
+                 replyTo: '',
+                 subject: 'BUILD SUCCESS NOTIFICATION',
+                 to: 'nobeldhakal01@gmail.com'
+        }
+        failure {
+            mail bcc: '',
+                 body: """Hi Team,
+            
+Build #${BUILD_NUMBER} is unsuccessful, please go through the url
+
+${BUILD_URL}
+
+and verify the details.
+
+Regards,
+DevOps Team""",
+                 cc: '',
+                 from: '',
+                 replyTo: '',
+                 subject: 'BUILD FAILED NOTIFICATION',
+                 to: 'nobeldhakal01@gmail.com'
         }
     }
 }
