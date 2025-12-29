@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        CONTAINER_REGISTRY_AND_REPOSITORY = "nobeldhakal/javaapp"
+        CONTAINER_REGISTRY_AND_REPOSITORY = "nobeldhakal123/javaapp"
     }
 
     stages {
